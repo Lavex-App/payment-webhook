@@ -8,7 +8,7 @@ steps:
       - |
         echo $'\n  DB_URI: '$$DB_URI >> ./infra/app_engine/${_ENV}.yaml
         echo $'\n  PROJECT_ID: '$$PROJECT_ID >> ./infra/app_engine/${_ENV}.yaml
-        echo $'\n  SERVICE_NAME: ${_SERVICE_NAME}' >> ./infra/app_engine/${_ENV}.yaml
+        echo $'\n  SERVICE_NAME: ${_SERVICE_NAME}\n' >> ./infra/app_engine/${_ENV}.yaml
     timeout: "1600s"
 
   - id: "Move App Engine env"
