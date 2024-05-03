@@ -2,9 +2,9 @@ from functools import lru_cache
 
 from payment_webhook.adapters.__factory__ import FrameworksFactoryInterface
 
+from .example import ExampleManager
 from .firebase import FirebaseFrameworkConfig, FirebaseManager
 from .mongodb import MotorFrameworkConfig, MotorManager
-from .example import ExampleManager
 
 
 class FrameworksConfig:
@@ -17,7 +17,7 @@ class FrameworksConfig:
         self.motor_framework_config = motor_framework_config
 
 
-class FrameworksFactory(FrameworksFactoryInterface[MotorManager, FirebaseManager]):
+class FrameworksFactory(FrameworksFactoryInterface[MotorManager, FirebaseManager, ExampleManager]):
     def __init__(self, config: FrameworksConfig) -> None:
         self.__config = config
         self.__motor_manager = MotorManager(config.motor_framework_config)

@@ -14,7 +14,7 @@ T_authentication_co = TypeVar("T_authentication_co", bound=AuthenticationProvide
 T_example_co = TypeVar("T_example_co", bound=ExampleProvider, covariant=True)
 
 
-class FrameworksFactoryInterface(Generic[T_database_co, T_authentication_co], metaclass=ABCMeta):
+class FrameworksFactoryInterface(Generic[T_database_co, T_authentication_co, T_example_co], metaclass=ABCMeta):
     @abstractmethod
     def database_provider(self) -> T_database_co: ...
 

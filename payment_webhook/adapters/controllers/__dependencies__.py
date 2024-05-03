@@ -50,7 +50,7 @@ class _ControllerDependencyManager(metaclass=_Singleton):
 
     def example_use_case(self) -> ExampleUseCase:
         if self.__factory:
-            return self.__factory.charge_pix_use_case()
+            return self.__factory.example_use_case()
         raise ControllerDependencyManagerIsNotInitializedException()
 
 
@@ -71,4 +71,4 @@ class _ControllerDependency(metaclass=ABCMeta):
 class RegisterControllerDependencies(_ControllerDependency):
     def __init__(self, credential: HTTPAuthorizationCredentials = Depends(HTTPBearer(auto_error=False))) -> None:
         super().__init__(credential)
-        self.example_use_case: ExampleUseCase = self._dependency_manager.charge_pix_use_case()
+        self.example_use_case: ExampleUseCase = self._dependency_manager.example_use_case()

@@ -1,8 +1,7 @@
 from .interfaces import InputDTO, OutputDTO
 
 
-class ExampleInputDTO(InputDTO):
-    ...
+class ExampleInputDTO(InputDTO): ...
 
 
 class ExampleOutputDTO(OutputDTO):
