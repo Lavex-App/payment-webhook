@@ -30,7 +30,7 @@ def register_routes(base_app: FastAPI, app_binding: AppBinding) -> None:
 
 def create_app() -> FastAPI:
     project_config = ProjectConfig()
-    app_binding = AppBinding(project_config.frameworks_config, project_config.adapters_config)
+    app_binding = AppBinding(project_config.frameworks_config)
     app_binding.facade()
     base_app = simple_app(app_binding)
     register_routes(base_app, app_binding)

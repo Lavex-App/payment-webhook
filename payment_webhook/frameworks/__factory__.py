@@ -2,9 +2,9 @@ from functools import lru_cache
 
 from payment_webhook.adapters.__factory__ import FrameworksFactoryInterface
 
-from .example import ExampleManager
 from .firebase import FirebaseFrameworkConfig, FirebaseManager
 from .mongodb import MotorFrameworkConfig, MotorManager
+from .pubsub import PubSubPublisherFrameworkConfig, PubSubPublisherManager
 
 
 class FrameworksConfig:
@@ -12,12 +12,14 @@ class FrameworksConfig:
         self,
         firebase_framework_config: FirebaseFrameworkConfig,
         motor_framework_config: MotorFrameworkConfig,
+        pubsub_publisher_framework_config: PubSubPublisherFrameworkConfig,
     ) -> None:
         self.firebase_framework_config = firebase_framework_config
         self.motor_framework_config = motor_framework_config
+        self.pubsub_publisher_framework_config = pubsub_publisher_framework_config
 
 
-class FrameworksFactory(FrameworksFactoryInterface[MotorManager, FirebaseManager, ExampleManager]):
+class FrameworksFactory(FrameworksFactoryInterface[MotorManager, FirebaseManager, PubSubPublisherManager]):
     def __init__(self, config: FrameworksConfig) -> None:
         self.__config = config
         self.__motor_manager = MotorManager(config.motor_framework_config)
@@ -34,8 +36,8 @@ class FrameworksFactory(FrameworksFactoryInterface[MotorManager, FirebaseManager
     def authentication_provider(self) -> FirebaseManager:
         return self.__firebase_manager
 
-    def example_provider(self) -> ExampleManager:
-        return ExampleManager()
+    def publisher_provider(self) -> PubSubPublisherManager:
+        return PubSubPublisherManager(self.__config.pubsub_publisher_framework_config)
 
     def user_provider(self) -> FirebaseManager:
         return self.__firebase_manager

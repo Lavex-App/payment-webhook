@@ -7,7 +7,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from payment_webhook.adapters.interface_adapters.interfaces import AuthenticationProvider, BearerToken
 from payment_webhook.business.__factory__ import BusinessFactory
-from payment_webhook.business.use_case import ExampleUseCase
+from payment_webhook.business.use_case import PaymentReceivedUseCase
 
 
 def bind_controller_dependencies(
@@ -48,9 +48,9 @@ class _ControllerDependencyManager(metaclass=_Singleton):
             return self.__auth
         raise ControllerDependencyManagerIsNotInitializedException()
 
-    def example_use_case(self) -> ExampleUseCase:
+    def payment_received_use_case(self) -> PaymentReceivedUseCase:
         if self.__factory:
-            return self.__factory.example_use_case()
+            return self.__factory.payment_received_use_case()
         raise ControllerDependencyManagerIsNotInitializedException()
 
 
@@ -68,7 +68,13 @@ class _ControllerDependency(metaclass=ABCMeta):
         self.uid = auth.authenticate_by_token(bearer_token)
 
 
-class RegisterControllerDependencies(_ControllerDependency):
+class ClientNotificationControllerDependencies(_ControllerDependency):
     def __init__(self, credential: HTTPAuthorizationCredentials = Depends(HTTPBearer(auto_error=False))) -> None:
         super().__init__(credential)
-        self.example_use_case: ExampleUseCase = self._dependency_manager.example_use_case()
+        # self.payment_received_use_case: PaymentReceivedUseCase = self._dependency_manager.payment_received_use_case()
+
+
+class PixStatusChangeReceiverControllerDependencies:
+    def __init__(self) -> None:
+        dependency_manager = _ControllerDependencyManager()
+        self.payment_received_use_case: PaymentReceivedUseCase = dependency_manager.payment_received_use_case()

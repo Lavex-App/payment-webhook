@@ -3,12 +3,13 @@ from functools import lru_cache
 
 from environs import Env
 
-from payment_webhook.adapters.__factory__ import AdaptersConfig, AdaptersFactory
+from payment_webhook.adapters.__factory__ import AdaptersFactory
 from payment_webhook.adapters.controllers.__dependencies__ import bind_controller_dependencies
 from payment_webhook.business.__factory__ import BusinessFactory
 from payment_webhook.frameworks.__factory__ import FrameworksConfig, FrameworksFactory
 from payment_webhook.frameworks.firebase import FirebaseFrameworkConfig
 from payment_webhook.frameworks.mongodb import MotorFrameworkConfig
+from payment_webhook.frameworks.pubsub import PubSubPublisherFrameworkConfig
 
 
 class Config(metaclass=ABCMeta):
@@ -44,12 +45,8 @@ class ProjectConfig(Config):
         return FrameworksConfig(
             motor_framework_config=self.__motor_framework_config,
             firebase_framework_config=self.__firebase_framework_config,
+            pubsub_publisher_framework_config=self.__pubsub_publisher_framework_config,
         )
-
-    @property
-    @lru_cache
-    def adapters_config(self) -> AdaptersConfig:
-        return AdaptersConfig()
 
     @property
     @lru_cache
@@ -68,21 +65,28 @@ class ProjectConfig(Config):
             auth_app_options={"projectId": self._env.str("PROJECT_ID")},
         )
 
+    @property
+    @lru_cache
+    def __pubsub_publisher_framework_config(self) -> PubSubPublisherFrameworkConfig:
+        return PubSubPublisherFrameworkConfig(
+            credentials=self._env.str("GOOGLE_APPLICATION_CREDENTIALS", None),
+            project_id=self._env.str("PROJECT_ID"),
+        )
+
 
 class AppBinding:
     business: BusinessFactory
     adapters: AdaptersFactory
     frameworks: FrameworksFactory
 
-    def __init__(self, frameworks_config: FrameworksConfig, adapters_config: AdaptersConfig) -> None:
+    def __init__(self, frameworks_config: FrameworksConfig) -> None:
         self.frameworks_config = frameworks_config
-        self.adapters_config = adapters_config
 
     def bind_frameworks(self) -> None:
         self.frameworks = FrameworksFactory(self.frameworks_config)
 
     def bind_adapters(self) -> None:
-        self.adapters = AdaptersFactory(self.frameworks, self.adapters_config)
+        self.adapters = AdaptersFactory(self.frameworks)
 
     def bind_business(self) -> None:
         self.business = BusinessFactory(self.adapters)

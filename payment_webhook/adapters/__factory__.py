@@ -6,15 +6,22 @@ from fastapi import FastAPI
 from payment_webhook.business.__factory__ import AdaptersFactoryInterface
 
 from .controllers.__binding__ import Binding
-from .interface_adapters import ExampleAdapter, ExampleAdapterConfig, ExampleProviders
-from .interface_adapters.interfaces import AuthenticationProvider, DocumentDatabaseProvider, ExampleProvider
+from .interface_adapters import (
+    AccountAdapter,
+    AccountProviders,
+    EventPublisherAdapter,
+    EventPublisherProviders,
+    NotificationAdapter,
+    NotificationProviders,
+)
+from .interface_adapters.interfaces import AuthenticationProvider, DocumentDatabaseProvider, PublisherProvider
 
 T_database_co = TypeVar("T_database_co", bound=DocumentDatabaseProvider, covariant=True)
 T_authentication_co = TypeVar("T_authentication_co", bound=AuthenticationProvider, covariant=True)
-T_example_co = TypeVar("T_example_co", bound=ExampleProvider, covariant=True)
+T_publisher_co = TypeVar("T_publisher_co", bound=PublisherProvider, covariant=True)
 
 
-class FrameworksFactoryInterface(Generic[T_database_co, T_authentication_co, T_example_co], metaclass=ABCMeta):
+class FrameworksFactoryInterface(Generic[T_database_co, T_authentication_co, T_publisher_co], metaclass=ABCMeta):
     @abstractmethod
     def database_provider(self) -> T_database_co: ...
 
@@ -22,20 +29,27 @@ class FrameworksFactoryInterface(Generic[T_database_co, T_authentication_co, T_e
     def authentication_provider(self) -> T_authentication_co: ...
 
     @abstractmethod
-    def example_provider(self) -> T_example_co: ...
+    def publisher_provider(self) -> T_publisher_co: ...
 
 
-class AdaptersConfig(ExampleAdapterConfig): ...
-
-
-class AdaptersFactory(AdaptersFactoryInterface[ExampleAdapter]):
-    def __init__(self, frameworks_factory: FrameworksFactoryInterface, config: ExampleAdapterConfig) -> None:
+class AdaptersFactory(AdaptersFactoryInterface[AccountAdapter, EventPublisherAdapter, NotificationAdapter]):
+    def __init__(self, frameworks_factory: FrameworksFactoryInterface) -> None:
         self.__factory = frameworks_factory
-        self.__config = config
 
-    def example_service(self) -> ExampleAdapter:
-        providers = ExampleProviders(example_provider=self.__factory.example_provider())
-        return ExampleAdapter(providers=providers, config=self.__config)
+    def account_service(self) -> AccountAdapter:
+        providers = AccountProviders(document_database_provider=self.__factory.database_provider())
+        return AccountAdapter(providers=providers)
+
+    def event_service(self) -> EventPublisherAdapter:
+        providers = EventPublisherProviders(
+            publisher_provider=self.__factory.publisher_provider(),
+            document_database_provider=self.__factory.database_provider(),
+        )
+        return EventPublisherAdapter(providers=providers)
+
+    def notification_service(self) -> NotificationAdapter:
+        providers = NotificationProviders()
+        return NotificationAdapter(providers=providers)
 
     @staticmethod
     def register_routes(app: FastAPI) -> None:

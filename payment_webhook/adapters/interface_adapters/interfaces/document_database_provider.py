@@ -9,6 +9,8 @@ DatabaseT = TypeVar("DatabaseT")
 @verify(UNIQUE)
 class DatabaseName(Enum):
     ACCOUNT = "domain-account"
+    PAYMENT = "domain-payment"
+    EVENT_ENGINE = "event-engine"
     ADMIN = "configuration"
 
 
