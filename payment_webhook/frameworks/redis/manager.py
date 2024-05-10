@@ -8,7 +8,7 @@ from payment_webhook.models import AuthenticatedUserModel
 
 class RedisStorageFrameworkConfig(TypedDict):
     redis_host: str
-    redis_port: str
+    redis_port: int
 
 
 class RedisStorageManager(StoringClientsInMemoryProvider):

@@ -13,4 +13,6 @@ ignore =
     # multiple statements on one line [class]
     E701,
     # multiple statements on one line [function]
-    E704
+    E704,
+    # line break before binary operator
+    W503

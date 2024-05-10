@@ -52,7 +52,7 @@ class BusinessFactory:
         )
         return PaymentReceivedUseCase(services)
 
-    def save_client_in_waiting_queue_use_case(self) -> PaymentReceivedUseCase:
+    def save_client_in_waiting_queue_use_case(self) -> SaveClientInWaitingQueueUseCase:
         services = SaveClientInWaitingQueueServices(
             client_queue_adder_service=self.__factory.in_memory_storage_service(),
         )

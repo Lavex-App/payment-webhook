@@ -26,7 +26,7 @@ class CheckPaymentOfClientInTheQueueOutputPort(ConnectedClientModel, OutputPort)
     msg: str
 
 
-class CancelPaymentReceiptCheckInputPort(AuthenticatedUserModel, OutputPort): ...
+class CancelPaymentReceiptCheckInputPort(AuthenticatedUserModel, InputPort): ...
 
 
 class CancelPaymentReceiptCheckOutputPort(OutputPort):
