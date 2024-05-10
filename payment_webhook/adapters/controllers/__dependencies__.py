@@ -7,7 +7,12 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from payment_webhook.adapters.interface_adapters.interfaces import AuthenticationProvider, BearerToken
 from payment_webhook.business.__factory__ import BusinessFactory
-from payment_webhook.business.use_case import PaymentReceivedUseCase
+from payment_webhook.business.use_case import (
+    CancelPaymentReceiptCheckUseCase,
+    CheckPaymentOfClientInTheQueueUseCase,
+    PaymentReceivedUseCase,
+    SaveClientInWaitingQueueUseCase,
+)
 
 
 def bind_controller_dependencies(
@@ -53,6 +58,21 @@ class _ControllerDependencyManager(metaclass=_Singleton):
             return self.__factory.payment_received_use_case()
         raise ControllerDependencyManagerIsNotInitializedException()
 
+    def save_client_in_waiting_queue_use_case(self) -> SaveClientInWaitingQueueUseCase:
+        if self.__factory:
+            return self.__factory.save_client_in_waiting_queue_use_case()
+        raise ControllerDependencyManagerIsNotInitializedException()
+
+    def check_payment_of_client_in_the_queue_use_case(self) -> CheckPaymentOfClientInTheQueueUseCase:
+        if self.__factory:
+            return self.__factory.check_payment_of_client_in_the_queue_use_case()
+        raise ControllerDependencyManagerIsNotInitializedException()
+
+    def cancel_payment_receipt_check_use_case(self) -> CancelPaymentReceiptCheckUseCase:
+        if self.__factory:
+            return self.__factory.cancel_payment_receipt_check_use_case()
+        raise ControllerDependencyManagerIsNotInitializedException()
+
 
 class _ControllerDependency(metaclass=ABCMeta):
     def __init__(self, credential: HTTPAuthorizationCredentials = Depends(HTTPBearer(auto_error=False))) -> None:
@@ -68,10 +88,21 @@ class _ControllerDependency(metaclass=ABCMeta):
         self.uid = auth.authenticate_by_token(bearer_token)
 
 
-class ClientNotificationControllerDependencies(_ControllerDependency):
+class Waiting2ReceivePaymentControllerDependencies(_ControllerDependency):
     def __init__(self, credential: HTTPAuthorizationCredentials = Depends(HTTPBearer(auto_error=False))) -> None:
         super().__init__(credential)
-        # self.payment_received_use_case: PaymentReceivedUseCase = self._dependency_manager.payment_received_use_case()
+
+    @property
+    def save_clients_in_waiting_queue_use_case(self) -> SaveClientInWaitingQueueUseCase:
+        return self._dependency_manager.save_client_in_waiting_queue_use_case()
+
+    @property
+    def check_payment_of_client_in_the_queue_use_case(self) -> CheckPaymentOfClientInTheQueueUseCase:
+        return self._dependency_manager.check_payment_of_client_in_the_queue_use_case()
+
+    @property
+    def cancel_payment_receipt_check_use_case(self) -> CancelPaymentReceiptCheckUseCase:
+        return self._dependency_manager.cancel_payment_receipt_check_use_case()
 
 
 class PixStatusChangeReceiverControllerDependencies:

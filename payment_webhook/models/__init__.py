@@ -1,6 +1,8 @@
-from .user_model import AuthenticatedUserModel, PayingUser
+from .user_model import AuthenticatedUserModel, ClientConnectionStatus, ConnectedClientModel, PayingUserModel
 
 __all__ = [
     "AuthenticatedUserModel",
-    "PayingUser",
+    "PayingUserModel",
+    "ConnectedClientModel",
+    "ClientConnectionStatus",
 ]

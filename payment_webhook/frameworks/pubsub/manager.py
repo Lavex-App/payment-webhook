@@ -16,10 +16,10 @@ class PubSubPublisherManager(PublisherProvider):
     def __init__(self, config: PubSubPublisherFrameworkConfig):
         self.__project_id = config.get("project_id")
         self.__credentials = config.get("credentials")
-        self.__publisher = self.__get_app()
+        self.__app = self.__get_app()
 
     def publish(self, topic: Topic, event: Event, tries: int = 2) -> Any:
-        topic_path = self.__publisher.topic_path(self.__project_id, topic)
+        topic_path = self.__app.topic_path(self.__project_id, topic)
         json_data = json.dumps(event.model_dump(), cls=json_codec.Encoder, default=str)
         for _ in range(tries):
             try:
@@ -31,7 +31,7 @@ class PubSubPublisherManager(PublisherProvider):
         raise PublishError(f"Error to publish message to topic: {topic}")
 
     def __do_publish(self, topic_path: str, data: str) -> Any:
-        future = self.__publisher.publish(topic_path, bytes(data, "utf-8"))
+        future = self.__app.publish(topic_path, bytes(data, "utf-8"))
         return future.result()
 
     def __get_app(self) -> pubsub_v1.PublisherClient:

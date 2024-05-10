@@ -9,19 +9,49 @@ from .controllers.__binding__ import Binding
 from .interface_adapters import (
     AccountAdapter,
     AccountProviders,
+    ClientConnectionQueueAdapter,
+    ClientConnectionQueueProviders,
     EventPublisherAdapter,
     EventPublisherProviders,
-    NotificationAdapter,
-    NotificationProviders,
 )
-from .interface_adapters.interfaces import AuthenticationProvider, DocumentDatabaseProvider, PublisherProvider
+from .interface_adapters.interfaces import (
+    AuthenticationProvider,
+    DocumentDatabaseProvider,
+    PublisherProvider,
+    StoringClientsInMemoryProvider,
+)
 
-T_database_co = TypeVar("T_database_co", bound=DocumentDatabaseProvider, covariant=True)
-T_authentication_co = TypeVar("T_authentication_co", bound=AuthenticationProvider, covariant=True)
-T_publisher_co = TypeVar("T_publisher_co", bound=PublisherProvider, covariant=True)
+T_database_co = TypeVar(
+    "T_database_co",
+    bound=DocumentDatabaseProvider,
+    covariant=True,
+)
+T_authentication_co = TypeVar(
+    "T_authentication_co",
+    bound=AuthenticationProvider,
+    covariant=True,
+)
+T_publisher_co = TypeVar(
+    "T_publisher_co",
+    bound=PublisherProvider,
+    covariant=True,
+)
+T_storing_clients_in_memory_co = TypeVar(
+    "T_storing_clients_in_memory_co",
+    bound=StoringClientsInMemoryProvider,
+    covariant=True,
+)
 
 
-class FrameworksFactoryInterface(Generic[T_database_co, T_authentication_co, T_publisher_co], metaclass=ABCMeta):
+class FrameworksFactoryInterface(
+    Generic[
+        T_database_co,
+        T_authentication_co,
+        T_publisher_co,
+        T_storing_clients_in_memory_co,
+    ],
+    metaclass=ABCMeta,
+):
     @abstractmethod
     def database_provider(self) -> T_database_co: ...
 
@@ -31,8 +61,11 @@ class FrameworksFactoryInterface(Generic[T_database_co, T_authentication_co, T_p
     @abstractmethod
     def publisher_provider(self) -> T_publisher_co: ...
 
+    @abstractmethod
+    def storing_clients_in_memory_provider(self) -> T_storing_clients_in_memory_co: ...
 
-class AdaptersFactory(AdaptersFactoryInterface[AccountAdapter, EventPublisherAdapter, NotificationAdapter]):
+
+class AdaptersFactory(AdaptersFactoryInterface[AccountAdapter, EventPublisherAdapter, ClientConnectionQueueAdapter]):
     def __init__(self, frameworks_factory: FrameworksFactoryInterface) -> None:
         self.__factory = frameworks_factory
 
@@ -47,9 +80,11 @@ class AdaptersFactory(AdaptersFactoryInterface[AccountAdapter, EventPublisherAda
         )
         return EventPublisherAdapter(providers=providers)
 
-    def notification_service(self) -> NotificationAdapter:
-        providers = NotificationProviders()
-        return NotificationAdapter(providers=providers)
+    def in_memory_storage_service(self) -> ClientConnectionQueueAdapter:
+        providers = ClientConnectionQueueProviders(
+            storing_clients_in_memory_provider=self.__factory.storing_clients_in_memory_provider(),
+        )
+        return ClientConnectionQueueAdapter(providers=providers)
 
     @staticmethod
     def register_routes(app: FastAPI) -> None:

@@ -6,3 +6,8 @@ class BusinessException(RuntimeError):
 
     def __str__(self) -> str:
         return f"[{self.type}] {self.msg}"
+
+
+class ClientIsNotInTheQueue(BusinessException):
+    def __init__(self) -> None:
+        super().__init__("Client is not in the queue")

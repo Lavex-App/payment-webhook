@@ -5,7 +5,7 @@ from typing import NamedTuple
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 from payment_webhook.business.services import EventService
-from payment_webhook.models import PayingUser
+from payment_webhook.models import PayingUserModel
 
 from .interfaces import (
     DatabaseName,
@@ -32,7 +32,7 @@ class EventPublisherAdapter(InterfaceAdapter, EventService):
         self.__event_collection = database_provider.database["events"]
         self.__publisher_provider = providers.publisher_provider
 
-    async def trigger(self, port: PayingUser) -> None:
+    async def trigger(self, port: PayingUserModel) -> None:
         event = Event(
             transaction_id=str(uuid.uuid4()),
             event_id=str(uuid.uuid4()),
