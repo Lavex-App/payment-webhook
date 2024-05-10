@@ -10,6 +10,7 @@ from payment_webhook.frameworks.__factory__ import FrameworksConfig, FrameworksF
 from payment_webhook.frameworks.firebase import FirebaseFrameworkConfig
 from payment_webhook.frameworks.mongodb import MotorFrameworkConfig
 from payment_webhook.frameworks.pubsub import PubSubPublisherFrameworkConfig
+from payment_webhook.frameworks.redis import RedisStorageFrameworkConfig
 
 
 class Config(metaclass=ABCMeta):
@@ -46,6 +47,7 @@ class ProjectConfig(Config):
             motor_framework_config=self.__motor_framework_config,
             firebase_framework_config=self.__firebase_framework_config,
             pubsub_publisher_framework_config=self.__pubsub_publisher_framework_config,
+            redis_storage_framework_config=self.__redis_storage_framework_config,
         )
 
     @property
@@ -71,6 +73,14 @@ class ProjectConfig(Config):
         return PubSubPublisherFrameworkConfig(
             credentials=self._env.str("GOOGLE_APPLICATION_CREDENTIALS", None),
             project_id=self._env.str("PROJECT_ID"),
+        )
+
+    @property
+    @lru_cache
+    def __redis_storage_framework_config(self) -> RedisStorageFrameworkConfig:
+        return RedisStorageFrameworkConfig(
+            redis_host=self._env.str("REDIS_HOST", "localhost"),
+            redis_port=self._env.int("REDIS_PORT", 6379),
         )
 
 
