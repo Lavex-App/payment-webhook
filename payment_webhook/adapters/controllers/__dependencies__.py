@@ -1,9 +1,8 @@
 from abc import ABCMeta
 from typing import Annotated, Any
 
-from fastapi import Depends, Query, status
+from fastapi import Query, status
 from fastapi.exceptions import HTTPException
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from payment_webhook.adapters.interface_adapters.interfaces import AuthenticationProvider, BearerToken
 from payment_webhook.business.__factory__ import BusinessFactory
