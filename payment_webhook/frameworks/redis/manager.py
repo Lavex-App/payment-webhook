@@ -1,6 +1,6 @@
 from typing import TypedDict
 
-import aioredis
+from redis import asyncio as aioredis
 
 from payment_webhook.adapters.interface_adapters.interfaces import ClientRegister, StoringClientsInMemoryProvider
 from payment_webhook.models import AuthenticatedUserModel

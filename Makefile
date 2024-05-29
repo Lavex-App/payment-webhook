@@ -12,4 +12,4 @@ style:
 	black --line-length 120 payment_webhook/
 
 run:
-	uvicorn payment_webhook.main:app --host 0.0.0.0 --port 8001 --reload
+	uvicorn payment_webhook.main:app --host 0.0.0.0 --port 8002 --reload

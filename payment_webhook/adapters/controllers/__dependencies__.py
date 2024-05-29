@@ -1,7 +1,7 @@
 from abc import ABCMeta
-from typing import Any
+from typing import Annotated, Any
 
-from fastapi import Depends, status
+from fastapi import Depends, Query, status
 from fastapi.exceptions import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
@@ -75,23 +75,20 @@ class _ControllerDependencyManager(metaclass=_Singleton):
 
 
 class _ControllerDependency(metaclass=ABCMeta):
-    def __init__(self, credential: HTTPAuthorizationCredentials = Depends(HTTPBearer(auto_error=False))) -> None:
-        self._dependency_manager = _ControllerDependencyManager()
-        auth = self._dependency_manager.auth_service()
+    def __init__(self, credential: Annotated[str | None, Query()]) -> None:
         if credential is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Bearer authentication is needed",
                 headers={"WWW-Authenticate": 'Bearer realm="auth_required"'},
             )
-        bearer_token = BearerToken(credential.credentials)
+        self._dependency_manager = _ControllerDependencyManager()
+        auth = self._dependency_manager.auth_service()
+        bearer_token = BearerToken(credential)
         self.uid = auth.authenticate_by_token(bearer_token)
 
 
 class Waiting2ReceivePaymentControllerDependencies(_ControllerDependency):
-    def __init__(self, credential: HTTPAuthorizationCredentials = Depends(HTTPBearer(auto_error=False))) -> None:
-        super().__init__(credential)
-
     @property
     def save_clients_in_waiting_queue_use_case(self) -> SaveClientInWaitingQueueUseCase:
         return self._dependency_manager.save_client_in_waiting_queue_use_case()

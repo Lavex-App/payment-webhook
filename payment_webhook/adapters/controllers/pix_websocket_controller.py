@@ -17,6 +17,7 @@ pix_websocket_controller = APIRouter(prefix="/ws")
 
 @pix_websocket_controller.websocket("/waiting2receive-payment")
 async def waiting2receive_payment(
+    *,
     websocket: WebSocket,
     dependencies: Annotated[Waiting2ReceivePaymentControllerDependencies, Depends()],
 ) -> None:
